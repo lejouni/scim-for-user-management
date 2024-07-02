@@ -1,0 +1,124 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  scim-for-User-Management
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 256
+
+Parameters:
+  Stage:
+    Description: Environment with which is integrated
+    Type: String
+    Default: dev
+  BlackDuckURL:
+    Description: Black Duck URL to use
+    Type: String
+    Default: https://testing.blackduck.synopsys.com
+
+Resources:
+  ScimApiForBD:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName:
+        Ref: Stage
+      Auth:
+        Authorizers:
+          ScimBDAuthorizer:
+            FunctionPayloadType: TOKEN
+            FunctionArn:
+              Fn::GetAtt:
+              - BDAuthFunction
+              - Arn
+        DefaultAuthorizer: ScimBDAuthorizer
+
+  BDAuthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Tracing: Active
+      CodeUri: scim_for_bd/
+      Handler: bdAuthorizer.lambda_handler
+      Runtime: python3.9
+      Environment:
+        Variables:
+          BD_URL: 
+            Ref: BlackDuckURL
+
+  SCIMForBDFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      Tracing: Active
+      CodeUri: scim_for_bd/
+      Handler: lambda_handler.lambda_handler
+      Runtime: python3.9
+      Environment:
+        Variables:
+          BD_URL: 
+            Ref: BlackDuckURL
+      Architectures:
+      - x86_64
+      Events:
+        GetUsers:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            RestApiId:
+              Ref: ScimApiForBD
+            Path: /scim/v2/Users
+            Method: get
+        GetUser:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: ScimApiForBD
+            Path: /scim/v2/Users/{Id}
+            Method: get
+        UpdateUser:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: ScimApiForBD
+            Path: /scim/v2/Users/{Id}
+            Method: patch
+        DeleteUser:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: ScimApiForBD
+            Path: /scim/v2/Users/{Id}
+            Method: delete
+        AddUser:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: ScimApiForBD
+            Path: /scim/v2/Users
+            Method: post
+        GetSchemas:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: ScimApiForBD
+            Path: /scim/v2/Schemas
+            Method: get
+
+  ApplicationResourceGroup:
+    Type: AWS::ResourceGroups::Group
+    Properties:
+      Name:
+        Fn::Sub: ApplicationInsights-SAM-${AWS::StackName}
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
+
+Outputs:
+  BDAuthFunction:
+    Description: "BDAuthFunction Lambda Function ARN"
+    Value: !GetAtt BDAuthFunction.Arn
+  SCIMForBDFunction:
+    Description: "SCIMForBDFunction Lambda Function ARN"
+    Value: !GetAtt SCIMForBDFunction.Arn
+  ScimApiForBD:
+    Description: ScimApiForBD API EndPoint"
+    Value: !Sub "https://${ScimApiForBD}.execute-api.${AWS::Region}.amazonaws.com/${Stage}"

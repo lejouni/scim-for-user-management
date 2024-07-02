@@ -1,0 +1,4 @@
+requests
+aws-wsgi 
+flask
+blackduck

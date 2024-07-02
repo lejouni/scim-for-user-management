@@ -1,0 +1,100 @@
+---
+swagger: "2.0"
+info:
+  version: "1.0"
+  title: "scim-for-blackduck"
+host: "ay8nmj4f0c.execute-api.us-east-1.amazonaws.com"
+basePath: "/dev"
+schemes:
+- "https"
+paths:
+  /scim/v2/Schemas:
+    get:
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema: 
+                type: string
+        '400':
+          description: Invalid status value
+      security:
+      - ScimBDAuthorizer: []
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        httpMethod: "GET"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:734627024931:function:scim-for-blackduck-SCIMForBDFunction-p91LSDUpWnMH/invocations"
+        passthroughBehavior: "when_no_match"
+  /scim/v2/Users:
+    get:
+      responses: {}
+      security:
+      - ScimBDAuthorizer: []
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        httpMethod: "GET"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:734627024931:function:scim-for-blackduck-SCIMForBDFunction-p91LSDUpWnMH/invocations"
+        passthroughBehavior: "when_no_match"
+    post:
+      responses: {}
+      security:
+      - ScimBDAuthorizer: []
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        httpMethod: "POST"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:734627024931:function:scim-for-blackduck-SCIMForBDFunction-p91LSDUpWnMH/invocations"
+        passthroughBehavior: "when_no_match"
+  /scim/v2/Users/{Id}:
+    get:
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "string"
+      responses: {}
+      security:
+      - ScimBDAuthorizer: []
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        httpMethod: "GET"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:734627024931:function:scim-for-blackduck-SCIMForBDFunction-p91LSDUpWnMH/invocations"
+        passthroughBehavior: "when_no_match"
+    delete:
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "string"
+      responses: {}
+      security:
+      - ScimBDAuthorizer: []
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        httpMethod: "DELETE"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:734627024931:function:scim-for-blackduck-SCIMForBDFunction-p91LSDUpWnMH/invocations"
+        passthroughBehavior: "when_no_match"
+    patch:
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "string"
+      responses: {}
+      security:
+      - ScimBDAuthorizer: []
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        httpMethod: "PATCH"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:734627024931:function:scim-for-blackduck-SCIMForBDFunction-p91LSDUpWnMH/invocations"
+        passthroughBehavior: "when_no_match"
+securityDefinitions:
+  ScimBDAuthorizer:
+    type: "apiKey"
+    name: "Authorization"
+    in: "header"
+    x-amazon-apigateway-authtype: "custom"
+    x-amazon-apigateway-authorizer:
+      type: "token"
+      authorizerUri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:734627024931:function:scim-for-blackduck-BDAuthFunction-ysy91QgeIP2K/invocations"
+      authorizerResultTtlInSeconds: 300
